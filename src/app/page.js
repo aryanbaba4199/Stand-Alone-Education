@@ -48,18 +48,12 @@ const Page = () => {
   return (
     <div className="p-4">
    
-      <div className="mb-4">
-        <Link href="/auth" className="text-blue-500 hover:underline">
-          Go to Auth
-        </Link>
-      </div>
-
-
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {videos.map((video, index) => {
           const videoID = extractYouTubeID(video.link); 
           return (
-            <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden w-60 h-60">
+            <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden md:w-60 md:h-60 w-full">
               
               {videoID ? (
                 <div className="aspect-w-16 aspect-h-9 h-48">
