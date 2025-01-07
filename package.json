@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.3.1",
     "@mui/material": "^6.3.1",
+    "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.12.0",
