@@ -29,6 +29,9 @@ const regSchema = new mongoose.Schema({
     userType : {
         type : String,
         default : 'user'
+    },
+    parent : {
+        type : String,
     }
 });
 

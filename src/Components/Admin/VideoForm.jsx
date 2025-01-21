@@ -1,13 +1,31 @@
-import { adminApi, posterFunction } from '@/Api';
-import React, { useState } from 'react';
+import { adminApi, getterFunction, posterFunction } from '@/Api';
+import React, { useState, useEffect } from 'react';
 import { FiVideo, FiSave } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 
-const VideoForm = ({setOpen}) => {
+const VideoForm = ({ setOpen }) => {
   const [formData, setFormData] = useState({
     title: '',
     link: '',
+    rank: '',
+    course: '', // New field for course selection
   });
+
+  const [courses, setCourses] = useState([]); // To store the fetched courses
+
+  // Fetch courses when the component mounts
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await getterFunction(adminApi.course);
+        setCourses(response);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -19,21 +37,21 @@ const VideoForm = ({setOpen}) => {
 
   const handleClick = async () => {
     try {
-      await posterFunction(adminApi.uploadVideo, formData);
+      await posterFunction(adminApi.uploadVideo, formData); // Make the request with rank and course
       Swal.fire({
         title: 'Video Saved!',
         text: 'Your video has been successfully saved.',
-        icon:'success',
-        confirmButtonText: 'Close'
-      })
+        icon: 'success',
+        confirmButtonText: 'Close',
+      });
       setOpen(false);
     } catch (e) {
-        Swal.fire({
-            title: 'Error Saving Video!',
-            text: 'Failed to save your video. Please try again.',
-            icon:'error',
-            confirmButtonText: 'Close'
-        });
+      Swal.fire({
+        title: 'Error Saving Video!',
+        text: 'Failed to save your video. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'Close',
+      });
       console.error('Failed to save video:', e);
     }
   };
@@ -74,6 +92,41 @@ const VideoForm = ({setOpen}) => {
           placeholder="Paste the video link here"
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+      </div>
+
+      {/* Rank Input */}
+      <div className="w-full mb-4">
+        <label htmlFor="rank" className="block text-gray-600 mb-1">
+          Rank (1 = Top)
+        </label>
+        <input
+          type="number"
+          id="rank"
+          onChange={handleChange}
+          value={formData.rank}
+          placeholder="Enter rank"
+          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      {/* Course Dropdown */}
+      <div className="w-full mb-4">
+        <label htmlFor="course" className="block text-gray-600 mb-1">
+          Select Course
+        </label>
+        <select
+          id="course"
+          value={formData.course}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Select a course</option>
+          {courses.map((course) => (
+            <option key={course._id} value={course._id}>
+              {course.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Save Button */}

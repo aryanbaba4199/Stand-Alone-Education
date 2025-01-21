@@ -9,6 +9,9 @@ export const adminApi = {
     uploadVideo : '/api/admin/videos',
     dashboard : '/api/admin/dashboard',
     course : '/api/admin/course',
+    city : '/api/admin/city',
+    category : '/api/admin/course/category',
+    subCategory : '/api/admin/course/subcategory',
 }
 
 
@@ -20,7 +23,7 @@ export const posterFunction = async(uri, formData) =>{
        }
        
     }catch(err){
-        throw err.response.data.error;
+        throw err?.response?.data?.error;
     }
 }
 
@@ -31,6 +34,18 @@ export const getterFunction = async(uri)=>{
            return res.data;    
         }
     }catch(e){
-        throw e;
+        throw e?.response?.data?.error;
+    }
+}
+
+
+export const deleterFunction = async(uri, id)=>{
+    try{
+        const res = await axios.delete(`${uri}?id=${id}`);
+        if(res.status===200){
+           return res.data;    
+        }
+    }catch(e){
+        throw e?.response?.data?.error;
     }
 }

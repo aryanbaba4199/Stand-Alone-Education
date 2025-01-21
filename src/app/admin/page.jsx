@@ -1,5 +1,6 @@
 "use client";
-import { adminApi, getterFunction } from "@/Api";
+import { adminApi, deleterFunction, getterFunction, userApi } from "@/Api";
+import CityForm from "@/Components/Admin/CityForm";
 import CourseForm from "@/Components/Admin/CourseForm";
 import VideoForm from "@/Components/Admin/VideoForm";
 import {
@@ -15,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 
 const Admin = () => {
@@ -22,10 +24,19 @@ const Admin = () => {
   const [showCourse, setshowCourse] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showCity, setShowCity] = useState(false);
 
   useEffect(() => {
+    verify();
     getDashboardData();
   }, []);
+
+  const verify = async () => {
+    const token = localStorage.getItem("userType");
+    if (!token) {
+      router.push("/auth");
+    }
+  };
 
   const getDashboardData = async () => {
     setLoading(true);
@@ -50,6 +61,46 @@ const Admin = () => {
     return <div className="text-center">Loading...</div>;
   }
 
+  const handleCourseDelete = async (id) => {
+    try {
+      await deleterFunction(adminApi.course, id);
+      Swal.fire({
+        title: "Course deleted",
+        text: "Your course has been successfully deleted.",
+        icon: "success",
+        confirmButtonText: "Close",
+      });
+    } catch (e) {
+      Swal.fire({
+        title: "Error deleting course",
+        text: e,
+        icon: "error",
+        confirmButtonText: "Close",
+      });
+      console.error("Error in deleting course", e);
+    }
+  };
+
+  const handleCityDelete = async (id) => {
+    try {
+      await deleterFunction(adminApi.city, id);
+      Swal.fire({
+        title: "City deleted",
+        text: "Your city has been successfully deleted.",
+        icon: "success",
+        confirmButtonText: "Close",
+      });
+    } catch (e) {
+      Swal.fire({
+        title: "Error deleting city",
+        text: e,
+        icon: "error",
+        confirmButtonText: "Close",
+      });
+      console.error("Error deleting city", e);
+    }
+  };
+
   return (
     <div className="p-8">
       <div className="flex gap-8 mb-8">
@@ -67,6 +118,13 @@ const Admin = () => {
         >
           Create Course
         </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setShowCity(!showCity)}
+        >
+          Create City
+        </Button>
       </div>
 
       <Dialog open={showVideoForm} onClose={() => setShowVideoForm(false)}>
@@ -74,6 +132,10 @@ const Admin = () => {
       </Dialog>
       <Dialog open={showCourse} onClose={() => setshowCourse(false)}>
         <CourseForm setOpen={setshowCourse} />
+      </Dialog>
+
+      <Dialog open={showCity} onClose={() => setShowCity(false)}>
+        <CityForm setOpen={setShowCity} />
       </Dialog>
 
       <div className="mt-8">
@@ -139,6 +201,7 @@ const Admin = () => {
                   <TableCell>Duration</TableCell>
                   <TableCell>Fees</TableCell>
                   <TableCell>Charge</TableCell>
+                  <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -150,6 +213,50 @@ const Admin = () => {
                       <TableCell>{course.duration}</TableCell>
                       <TableCell>{course.fees}</TableCell>
                       <TableCell>{course.charge}</TableCell>
+                      <TableCell
+                        onClick={() => handleCourseDelete(course._id)}
+                        className="hover:cursor-pointer"
+                        color=""
+                      >
+                        Delete
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+
+        <div className="mt-12">
+          <h3 className="text-xl font-semibold mb-4">Available Cities</h3>
+          <TableContainer component={Paper} className="mt-4">
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>City</TableCell>
+                  <TableCell>State</TableCell>
+                  <TableCell>Code</TableCell>
+                  <TableCell>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {dashboardData &&
+                  dashboardData.cities &&
+                  dashboardData.cities.map((course) => (
+                    <TableRow key={course._id}>
+                      <TableCell>{course._id}</TableCell>
+                      <TableCell>{course.cityName}</TableCell>
+                      <TableCell>{course.state}</TableCell>
+                      <TableCell>{course.citycode}</TableCell>
+
+                      <TableCell
+                        onClick={() => handleCityDelete(course._id)}
+                        className="hover:cursor-pointer"
+                        color=""
+                      >
+                        Delete
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>

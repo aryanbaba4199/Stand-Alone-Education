@@ -1,258 +1,189 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { FaUser, FaMobileAlt, FaMapMarkerAlt, FaLock } from "react-icons/fa";
-import { MenuItem, TextField, Button, Dialog } from "@mui/material";
-import axios from "axios";
-import { adminApi, getterFunction, posterFunction, userApi } from "@/Api";
-import Swal from "sweetalert2";
-import { useRouter } from "next/navigation";
-import Login from "@/Components/user/Login";
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import Caraousel from "@/Components/home/Caraousel";
+import StudentForm from "@/Components/user/RegForm";
 
-const StudentForm = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    mobile: "",
-    degree: "",
-    studyIn: "",
-    address: "",
-    countryCode: "",
-    password: "",
-  });
-
-  const router = useRouter();
-  const [course, setCourse] = useState([]);
-  const [login, setLogin] = useState(false);
-
-  useEffect(() => {
-    axios
-      .get("https://ipapi.co/json/")
-      .then((response) => {
-        const countryCode = `+${response.data.country_calling_code.replace(
-          "+",
-          ""
-        )}`;
-        setFormData((prev) => ({ ...prev, countryCode }));
-      })
-      .catch((error) => console.error("Error fetching country code:", error));
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        axios
-          .get(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-          )
-          .then((res) => {
-            setFormData((prev) => ({
-              ...prev,
-              address: res.data.display_name,
-            }));
-          })
-          .catch((err) => console.error("Error fetching address:", err));
-      },
-      (error) => console.error("Error with geolocation:", error)
-    );
-    fetchCourse();
-  }, []);
-
-  useEffect(() => {
-    if (typeof window !== undefined) {
-      const token = localStorage.getItem("token");
-      if (token) {
-        router.push("/");
-      }
-    }
-  }, [login]);
-
-  const fetchCourse = async () => {
-    try {
-      const res = await getterFunction(adminApi.course);
-      setCourse(res);
-      console.log(res);
-    } catch (err) {
-      console.error("Error fetching course:", err);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e?.preventDefault();
-    try {
-      const res = await posterFunction(userApi.registration, formData);
-      console.log(res);
-      Swal.fire({
-        title: "Registration Successful!",
-        text: "Your form has been submitted successfully.",
-        icon: "success",
-        confirmButtonText: "Close",
-      });
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("userType", res.userType);
-      router.push("/");
-    } catch (err) {
-      Swal.fire({
-        title: "Error in Submission!",
-        text: err,
-        icon: "error",
-        confirmButtonText: "Close",
-      });
-      console.error("Error in submission :", err);
-    }
-  };
-
+const Page = () => {
   return (
-    <>
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full"
-        >
-          <h1 className="text-2xl font-bold text-center mb-6">Student Form</h1>
-
-          {/* Student Name */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Student Name
-            </label>
-            <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50">
-              <FaUser className="text-gray-400 mr-2" />
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter your name"
-                className="w-full border-none outline-none bg-transparent"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Mobile Number */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Mobile Number
-            </label>
-            <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50">
-              <FaMobileAlt className="text-gray-400 mr-2" />
-              <span className="text-gray-700 mr-2">{formData.countryCode}</span>
-              <input
-                type="tel"
-                name="mobile"
-                value={formData.mobile}
-                onChange={handleChange}
-                placeholder="Enter your mobile number"
-                className="w-full border-none outline-none bg-transparent"
-                required
-                maxLength={10}
-              />
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Password
-            </label>
-            <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50">
-              <FaLock className="text-gray-400 mr-2" />
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your address"
-                className="w-full border-none outline-none bg-transparent"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Higher Passout Degree */}
-          <div className="mb-4">
-            <TextField
-              select
-              label="Higher Passout Degree"
-              name="degree"
-              value={formData.degree}
-              onChange={handleChange}
-              fullWidth
-              required
-            >
-              {course.map((option) => (
-                <MenuItem key={option._id} value={option.name}>
-                  {option.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-
-          {/* Want to Study In */}
-          <div className="mb-4">
-            <TextField
-              select
-              label="Want to Study In"
-              name="studyIn"
-              value={formData.studyIn}
-              onChange={handleChange}
-              fullWidth
-              required
-            >
-              {course.map((option) => (
-                <MenuItem key={option._id} value={option.name}>
-                  {option.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-
-          {/* Address */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Address
-            </label>
-            <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50">
-              <FaMapMarkerAlt className="text-gray-400 mr-2" />
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="Enter your address"
-                className="w-full border-none outline-none bg-transparent"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            className="mt-4"
-            onClick={() => handleSubmit()}
+    <div className="bg-gray-50 min-h-screen font-sans mt-4 px-4">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-green-600 to-purple-600 text-white py-20 rounded-lg">
+        <div className="container mx-auto text-center px-4">
+          <h1 className="text-5xl font-extrabold mb-6">
+            Ace Your NEET Journey with Us
+          </h1>
+          <p className="text-xl font-light mb-8 max-w-3xl mx-auto">
+            Our NEET program combines expert teaching, personalized guidance,
+            and state-of-the-art resources to ensure your success in cracking
+            the medical entrance exam.
+          </p>
+          <Link
+            href="#enroll"
+            className="bg-white text-blue-600 px-8 py-4 font-semibold rounded-full shadow-md hover:bg-gray-100"
           >
-            Submit
-          </Button>
-        </form>
-      </div>
-      <div className="flex justify-center items-center mt-8">
-        <button
-          onClick={() => setLogin(!login)}
-          className="bg-green-600 px-4 p-1 rounded-sm text-white hover:cursor-pointer hover:bg-green-700"
-        >
-          Log in
-        </button>
-      </div>
-      <Dialog open={login} onClose={() => setLogin(!login)}>
-        <Login setOpen={setLogin} />
-      </Dialog>
-    </>
+            Enroll Now
+          </Link>
+        </div>
+      </section>
+
+      {/* Carousel Section */}
+      <section className="py-12 bg-gray-100">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+            Student Success Stories
+          </h2>
+          <Caraousel />
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-16 bg-white">
+        <div className="container mx-auto text-center px-4">
+          <h2 className="text-4xl font-extrabold mb-6 text-gray-900">
+            Why Choose Our NEET Coaching?
+          </h2>
+          <p className="text-lg text-gray-700 mb-10 max-w-2xl mx-auto">
+            Our program offers personalized mentorship, cutting-edge study
+            materials, and structured learning to help you achieve your medical
+            dreams.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-blue-100 p-6 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold text-blue-700 mb-4">
+                Expert Faculty
+              </h3>
+              <p className="text-gray-600">
+                Learn from top educators with years of experience in preparing
+                students for NEET.
+              </p>
+            </div>
+            <div className="bg-purple-100 p-6 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold text-purple-700 mb-4">
+                Comprehensive Materials
+              </h3>
+              <p className="text-gray-600">
+                Access our exclusive study materials designed to cover every
+                topic in-depth.
+              </p>
+            </div>
+            <div className="bg-green-100 p-6 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold text-green-700 mb-4">
+                Personalized Guidance
+              </h3>
+              <p className="text-gray-600">
+                Receive one-on-one mentorship to address your specific learning
+                needs.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="bg-gray-200 py-20">
+        <div className="container mx-auto">
+          <h3 className="text-3xl font-bold text-center mb-10">
+            Program Highlights
+          </h3>
+          <div className="grid md:grid-colo-1 gap-2 grid-cols-2">
+            <img
+              src="https://xylemlearning.com/wp-content/uploads/2023/05/Integrated-2.png"
+              className="w-auto"
+            />
+            <img src="https://xylemlearning.com/wp-content/uploads/2023/05/Integrated-4.png" />
+            <img src="https://xylemlearning.com/wp-content/uploads/2023/05/integrated-5.png" />
+            <img src="https://xylemlearning.com/wp-content/uploads/2023/05/Integrated-3.png" />
+            <img src="https://xylemlearning.com/wp-content/uploads/2023/05/integrated-6.png" />
+            <img src="https://xylemlearning.com/wp-content/uploads/2023/05/integrated-7.png" />
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="bg-blue-50 py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-extrabold text-center mb-12 text-blue-900">
+            What Our Students Say
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Aryan Gupta",
+                review:
+                  "The personalized guidance I received was incredible. I secured a seat in my dream college!",
+              },
+              {
+                name: "Pooja Sharma",
+                review:
+                  "The study materials and mock tests were game changers for me. Highly recommended!",
+              },
+              {
+                name: "Rahul Jain",
+                review:
+                  "Amazing faculty and support team! They truly care about student success.",
+              },
+            ].map((testimonial, idx) => (
+              <div
+                key={idx}
+                className="bg-white p-6 rounded-lg shadow-md text-center"
+              >
+                <p className="text-gray-600 italic mb-4">
+                  "{testimonial.review}"
+                </p>
+                <h4 className="text-blue-700 font-bold">
+                  - {testimonial.name}
+                </h4>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-4">
+        <StudentForm />
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-extrabold text-center mb-12 text-gray-900">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-6">
+            {[
+              {
+                question: "What is the duration of the NEET repeater program?",
+                answer:
+                  "The program spans one academic year, covering all essential topics in-depth.",
+              },
+              {
+                question: "Are the study materials updated for NEET 2023?",
+                answer:
+                  "Yes, all materials are meticulously updated to reflect the latest exam pattern.",
+              },
+              {
+                question: "Do you provide online and offline classes?",
+                answer:
+                  "We offer both formats to accommodate diverse learning preferences.",
+              },
+            ].map((faq, idx) => (
+              <details
+                key={idx}
+                className="bg-gray-100 p-4 rounded-lg shadow-md"
+              >
+                <summary className="font-semibold cursor-pointer text-lg">
+                  {faq.question}
+                </summary>
+                <p className="text-gray-600 mt-2">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
   );
 };
 
-export default StudentForm;
+export default Page;

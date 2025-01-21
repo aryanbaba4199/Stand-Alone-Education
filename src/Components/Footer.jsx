@@ -3,7 +3,7 @@ import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/f
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500 mt-16 text-white">
+    <footer className="bg-gradient-to-r from-purple-600 to-purple-800 mt-16 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About Section */}
@@ -47,7 +47,7 @@ const Footer = () => {
 
       {/* Banner */}
       <div className="bg-gray-800 text-center py-4">
-        <p className="text-sm text-gray-400">© 2025 Stand Alone Education. All Rights Reserved.</p>
+        <p className="text-sm text-gray-400">© 2025 Stand Alone App. All Rights Reserved.</p>
       </div>
     </footer>
   );
