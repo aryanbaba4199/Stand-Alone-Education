@@ -20,9 +20,7 @@ const courseSchema = new mongoose.Schema({
         required : true,
     }, 
     subCategory : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "Subcategory", // This references the Subcategory model
-        required : true,
+        type : String,
     }
 });
 

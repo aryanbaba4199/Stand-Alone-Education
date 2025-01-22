@@ -10,6 +10,7 @@ import {
 import { FiBook, FiDollarSign } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { getterFunction, adminApi } from "@/Api"; // Adjust the imports as necessary
+import Link from "next/link";
 
 const Page = () => {
   const [courses, setCourses] = useState([]);
@@ -63,21 +64,16 @@ const Page = () => {
                   <span>{course.category.name}</span>
                 </div>
               </CardContent>
-              <CardActions className="flex justify-between px-4">
-                <Button
+              <CardActions className="flex justify-center px-4">
+                <Link
+                href={`/coursevideos?id=${course._id}`}
                   variant="contained"
                   color="success"
-                  className="w-full"
-                  onClick={() =>
-                    Swal.fire(
-                      "Course Details",
-                      `You clicked on ${course.name}`,
-                      "info"
-                    )
-                  }
+                  className=" self-center align-middle px-4 bg-gradient-to-r from-purple-600 text-white text-center to-[#15892e] rounded-md p-1 hover:shadow-md shadow-black"
+                  
                 >
                   View Details
-                </Button>
+                </Link>
               </CardActions>
             </Card>
           ))

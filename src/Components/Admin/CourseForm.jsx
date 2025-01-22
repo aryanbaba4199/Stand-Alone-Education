@@ -71,7 +71,7 @@ const CourseForm = ({ setOpen }) => {
     e.preventDefault();
     const { name, duration, fees, charge, category, subCategory } = formData;
 
-    if (!name || !duration || !fees || !charge || !category || !subCategory) {
+    if (!name || !duration || !fees || !charge || !category) {
       Swal.fire("Error", "Please fill all required fields.", "error");
       return;
     }
